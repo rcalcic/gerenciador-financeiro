@@ -1,0 +1,50 @@
+# Verificação contínua de segurança do código (decifrado só durante o job): toda segunda-feira e sob demanda.
+name: Segurança
+
+on:
+  schedule:
+    - cron: '0 11 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Decifrar o código-fonte
+        env:
+          SEGREDO: ${{ secrets.ASSINATURA_ATUALIZACAO }}
+        run: |
+          if [ -z "$SEGREDO" ]; then echo "::error::segredo ASSINATURA_ATUALIZACAO não configurado"; exit 1; fi
+          CHAVE=$({ printf '%s\n' "$SEGREDO"; printf 'gf-codigo-v1'; } | sha256sum | cut -c1-64)
+          printf '%s' "$CHAVE" | gpg --batch --quiet --pinentry-mode loopback --passphrase-fd 0 -d codigo/fonte.tar.gz.gpg | tar xz
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          check-latest: true
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: govulncheck (Go e biblioteca padrão)
+        run: |
+          go version
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          GOOS=windows "$(go env GOPATH)/bin/govulncheck" ./...
+          GOOS=windows "$(go env GOPATH)/bin/govulncheck" ./instalador
+      - name: Testes do OCR dentro do app (com CSP)
+        run: |
+          sh scripts/vendor-ocr.sh >/dev/null
+          sudo apt-get update -qq && sudo apt-get install -y -qq libsqlite3-dev fonts-dejavu-core
+          go build -o /tmp/gf-linux .
+          pip install -q playwright pillow
+          python -m playwright install --with-deps chromium >/dev/null
+          python scripts/teste-ocr.py /tmp/gf-linux
