@@ -1,0 +1,371 @@
+# Notas de versão
+
+## 2.4.0 — 12/11/2026
+
+### Novidades
+- **Verbas fixas e variáveis na projeção do salário.** Na tela Pagamento CLT, o quadro "Verbas na projeção" lista cada provento e desconto do holerite. Para cada um você escolhe se é fixo (repete o último valor), variável (usa a média dos últimos holerites) ou se fica fora da projeção. Horas extras, adicionais e descontos de saúde, como a coparticipação do plano, começam como variáveis. INSS e IRRF são recalculados sobre o bruto previsto.
+- **Ajuste por mês.** Na tela Mês, a caixa de projeção mostra as verbas variáveis com o valor estimado do mês, que você pode trocar. O líquido previsto do mês muda na hora.
+- **Bruto e descontos estimados.** Nos meses futuros, as linhas previstas e o total do mês passam a mostrar o bruto e os descontos estimados, com a parte variável em destaque. Antes aparecia "—".
+
+## 2.3.1 — 12/11/2026
+
+### Correções
+- "Acelerar" na IA local falhava com "GitHub respondeu HTTP 404" quando a IA tinha sido instalada pelo próprio app (o motor não informa a versão). Agora, nesse caso, a aceleração baixa de novo o motor junto com a parte da placa de vídeo, na mesma versão, para os dois ficarem compatíveis.
+
+## 2.3.0 — 12/11/2026
+
+### Novidades
+- **Visual novo.** Ícone novo e paleta inspirada na cédula de 100 reais: azul-petróleo com detalhes em dourado. O menu lateral fica em petróleo profundo, com o item aberto marcado em dourado. Os cartões ficaram mais leves, o menu mais compacto (cabem mais itens sem rolar) e a tela de Metas vazia ganhou um atalho para criar a reserva de emergência.
+
+### Melhorias
+- O quadro da IA local ficou mais simples: quando há uma placa de vídeo compatível, aparece só "Detectamos uma placa de vídeo que pode acelerar a IA" e o botão Acelerar.
+- A aceleração escolhe sozinha a versão do CUDA compatível com o driver da placa.
+- Textos revisados: as contagens agora concordam com o número ("1 entrada", "2 entradas", "do último mês"), em vez de "entrada(s)" e "últimos 1 meses".
+
+### Correções
+- "Acelerar com a placa de vídeo" não funcionava quando a IA tinha sido instalada pelo próprio app na versão 2.1: aparecia "instale a IA local antes de ativar a aceleração". Agora o app identifica a versão do motor instalado.
+
+## 2.2.0 — 12/11/2026
+
+### Novidades
+- **Entradas fixas e variáveis.** Salário, adiantamento e entradas marcadas como fixas formam a renda fixa mensal. Férias, 13º salário e extras ficam como variáveis: entram no mês em que caem, mas não na renda fixa nem nas médias. A tela Pagamento CLT ganhou o quadro "Entradas fixas e variáveis", com a renda fixa mensal e a divisão mês a mês. No mês, cada entrada mostra se é fixa ou variável, e as entradas avulsas (como um aluguel recebido) podem ser marcadas como fixas com um clique.
+- **Agente do consultor.** Peça em português e ele prepara a ação: criar uma meta ("crie uma meta de R$ 5.000 para a viagem até dezembro"), definir um teto de orçamento, registrar o dia de vencimento de uma conta, marcar uma conta como paga ou categorizar as compras do cartão que estão em "Outros". Nada muda até você clicar em Aplicar, e dá para desfazer.
+- **A IA local aprende com você.** A cada pergunta, ela consulta tudo o que está na ferramenta e ligado ao assunto: contas, entradas, compras do cartão, parcelamentos, o ano mês a mês e as entradas fixas e variáveis. Avalie as respostas (👍/👎) ou corrija-as: ela passa a considerar isso nas próximas. Há também um campo "O que a IA deve saber sobre você" e a opção de responder todas as perguntas com a IA, usando o cálculo do app como base.
+- **Placa de vídeo NVIDIA.** O app detecta a placa e oferece "Acelerar com a placa de vídeo", que deixa as respostas várias vezes mais rápidas, e o modelo Avançado (Qwen 2.5 7B) para respostas mais completas. Dá para trocar o modelo em uso a qualquer momento.
+
+### Melhorias
+- Reinstalar ou atualizar pelo instalador mantém a aceleração pela placa de vídeo e os modelos baixados.
+- Se a placa de vídeo não der conta, a IA volta sozinha a usar o processador.
+
+### Correções
+- Entradas de 13º salário viravam "outra entrada" ao reabrir o aplicativo e passavam a contar nas médias.
+
+## 2.1.1 — 11/11/2026
+
+### Novidades
+- Mesma versão da 2.1.0 (IA local embutida no instalador), com as correções abaixo.
+
+### Correções
+- Instalar a IA pelo aplicativo falhava com "não encontrei o pacote do llama.cpp para Windows": o app agora usa a versão testada e, se ela não estiver disponível, a release mais recente que tenha o pacote Windows com SHA-256 publicado.
+- Dados do mercado: a Selic aparecia com uma data futura (a da próxima reunião do Copom); agora aparece como "em vigor".
+
+## 2.1.0 — 11/11/2026
+
+### Novidades
+- **IA local embutida no instalador.** O instalador já traz o motor (llama.cpp) e o modelo Leve (Qwen 2.5 1,5B). Ele instala, confere cada arquivo pelo SHA-256 e deixa a IA ligada no Meu Consultor Pessoal, sem nenhum passo extra. Se quiser, é possível desligá-la ou removê-la na própria tela do consultor.
+
+### Melhorias
+- O motor da IA fica vinculado ao aplicativo: se o app fechar de forma inesperada, o Windows encerra a IA junto.
+- A versão do motor baixada pelo app passa a ser a mesma testada no instalador.
+- A cópia do instalador guardada na pasta dos backups continua leve (sem a IA), e a atualização automática não baixa o instalador grande.
+- Janela de progresso enquanto o instalador extrai a IA.
+
+### Correções
+- O alerta "contas fixas sem valor" do consultor considerava também contas de lançamento único e contas já encerradas.
+- A versão mostrada pelo Windows em Propriedades > Detalhes do programa e do instalador estava fixa em 1.0.2.0.
+- Proteção extra no servidor local: teto para o tamanho dos pedidos e limite de espera ao baixar a IA.
+
+## 2.0.0 — 11/11/2026
+
+### Novidades
+- **Versão 2.0.** Reúne o que veio nas versões 1.13 a 1.18: Início com vencimentos datados, calendário em visão Semana, modo compacto, novos alertas do consultor, Dados do mercado (Selic e IPCA) e IA local opcional com conferência dos números.
+
+### Melhorias
+- Requisitos e documentação atualizados para a IA local e os dados de mercado.
+
+## 1.18.0 — 11/11/2026
+
+### Novidades
+- A **IA local** agora responde no Meu Consultor Pessoal as perguntas que o consultor não tinha resposta pronta. O aplicativo calcula os números e entrega à IA só um resumo já calculado (meses, contas, parcelamentos, orçamento, metas, alertas e, se ligado, Selic e IPCA). Toda resposta passa por uma conferência: se citar um número que não está nos seus dados, ela é descartada e você recebe um aviso. As perguntas que o consultor já sabia responder continuam sendo calculadas pelo próprio aplicativo, sem IA.
+
+## 1.17.0 — 11/11/2026
+
+### Novidades
+- **IA local (opcional)** no Meu Consultor Pessoal: um modelo de linguagem pequeno que roda neste computador. Em "IA local" você escolhe o modelo (Leve ou Melhor) e instala com um clique. O motor (llama.cpp) e o modelo são baixados e só aceitos se o SHA-256 bater com o publicado pela própria fonte. Nada do aplicativo sai do computador: o motor escuta apenas em 127.0.0.1, com chave aleatória, liga sob demanda e desliga sozinho após 10 minutos sem uso. É possível remover tudo a qualquer momento.
+
+## 1.16.0 — 11/11/2026
+
+### Novidades
+- Meu Consultor Pessoal: opção **Dados do mercado** (desligada por padrão). Ao ligar, o programa consulta a Selic e o IPCA no Banco Central e passa a comparar a evolução dos seus gastos com a inflação e a estimar quanto uma reserva de emergência renderia. O pedido é só de dados públicos e não leva nenhuma informação do aplicativo.
+
+## 1.15.0 — 11/11/2026
+
+### Novidades
+- Calendário: nova visão **Semana**, ao lado de Mês, com navegação de semana em semana e arrastar para mudar o vencimento.
+- Modo compacto (menu Opções): espaçamentos menores para ver mais informação na tela. Fica lembrado neste computador.
+
+### Melhorias
+- Mensagens de "sem dados" mais claras e com orientação do que fazer (evolução, nota de saúde e projeção de salário).
+
+## 1.14.0 — 11/11/2026
+
+### Novidades
+- Meu Consultor Pessoal ganhou novos alertas: categoria que subiu bem acima da média dos meses anteriores, categoria que concentra a maior parte dos gastos e contas fixas que ainda estão sem valor no mês. A lista passou de 8 para até 10 cartões.
+
+## 1.13.0 — 11/11/2026
+
+### Melhorias
+- Início: o cartão "Contas a pagar" agora mostra a data de vencimento e o dia da semana de cada conta, com um aviso colorido ("atrasada", "vence hoje", "em 3 dias"), e as contas ficam ordenadas da que vence primeiro para a última. Os cartões da tela deixam de esticar quando o vizinho é maior.
+
+## 1.12.0 — 11/11/2026
+
+### Novidades
+- Em cada conta do mês agora há as caixas "Recorrente" e "Consumo", que podem ser marcadas juntas (por exemplo, uma conta de energia recorrente com acompanhamento de consumo). Marcar "Recorrente" repete o valor nos próximos meses; desmarcar tira os lançamentos automáticos dos próximos meses e mantém o mês atual.
+- Conta nova agora nasce como única: ela vale só para o mês em que foi criada e não vai para os próximos meses até você marcar "Recorrente".
+
+### Correções
+- Excluir uma conta "de agora em diante" não funcionava de verdade: ao reabrir o app, a conta voltava e as contas recorrentes eram lançadas de novo nos meses seguintes. Agora a exclusão fica gravada, as parcelas e previsões dos próximos meses também saem, e os anos seguintes já gravados são limpos. Os meses anteriores continuam intactos.
+
+## 1.11.1 — 06/11/2026
+
+### Melhorias
+- Tela de bloqueio: quando há PIN, agora aparece um seletor "PIN | Senha" no topo para escolher como entrar (os links "Entrar com a senha/PIN" saíram). O texto do campo do PIN ("Digite o PIN") não fica mais com as letras espaçadas, o subtítulo acompanha a opção escolhida e a barra de rolagem que aparecia atrás da tela de bloqueio foi removida.
+
+## 1.11.0 — 06/11/2026
+
+### Novidades
+- Relatório em PDF redesenhado: visual limpo e moderno, com gráficos planos, um "Resumo" em frases simples (quanto entrou, quanto saiu, quanto sobrou, onde foi o dinheiro e quantas contas já foram pagas), comparação com o mês anterior nos números principais e a seção "Para ficar de olho" com avisos e boas notícias (sobra, peso dos cartões, categorias que subiram ou caíram, contas em aberto, parcelamentos). Os relatórios anual e por período ganharam o comparativo mês a mês e os maiores gastos.
+- O app não precisa mais do Microsoft Edge instalado como programa: o PDF sai pela tela de impressão da própria janela do app (em Impressora, escolha "Salvar como PDF") e, se o WebView2 não existir, a interface abre no navegador padrão do Windows.
+
+### Melhorias
+- O Resumo para o Imposto de Renda também sai pela impressão da janela, no mesmo estilo.
+
+## 1.10.0 — 06/11/2026
+
+### Novidades
+- Barra de título no estilo do Windows 11: a barra de cima da janela agora usa a cor do próprio app, com título, botões de minimizar/maximizar/fechar e borda no mesmo tom, e cantos arredondados. Ela acompanha o tema escolhido (claro, escuro ou preto) na hora em que você troca, e o tema do Windows ao abrir o app.
+
+## 1.9.0 — 06/11/2026
+
+### Novidades
+- Calendário com controle total das datas: clique numa conta ou entrada para mudar a data (só daquele lançamento), marcar como paga, usar o mesmo dia nos outros meses ou voltar para a data automática. Também dá para arrastar a conta para outro dia do calendário. Datas escolhidas por você ficam marcadas com um lápis e não mudam sozinhas; a data do vencimento em Detalhes da conta passa a valer no calendário e nos avisos.
+- Pagamento CLT com tipo: ao importar ou abrir um holerite, escolha se é Salário (saldo), Adiantamento, 13º salário (1ª parcela, 2ª parcela ou parcela única) ou Férias, e a data em que o dinheiro cai. O 13º agora aparece no calendário (1ª parcela dia 28/11 e 2ª em 20/12, se você não informar outra data).
+
+### Melhorias
+- Férias e 13º são recebimentos pontuais: o mês de férias fica de fora das médias de despesa (reserva de emergência, simulador e consultor) e a média de rendimento passa a ser baseada só no adiantamento e no saldo. Na projeção, o mês de férias ou 13º conta com o que foi lançado.
+
+## 1.8.0 — 05/11/2026
+
+### Novidades
+- Janela própria do aplicativo: o Gerenciador Financeiro agora abre numa janela do próprio programa (com o ícone, o nome e o botão na barra de tarefas dele), em vez de uma janela do Edge. A interface, os dados, a senha e o PIN continuam iguais. Usa o WebView2 que já vem no Windows 11 e na maioria dos Windows 10; se não estiver instalado, o programa abre a janela do Edge como antes. Para voltar à janela do Edge de propósito, crie um arquivo vazio chamado usar-edge.txt na pasta de dados.
+
+## 1.7.0 — 05/11/2026
+
+### Novidades
+- PIN de 4 números para abrir o app: em Opções > "PIN de 4 números", defina o PIN com a sua senha. Na tela de bloqueio o PIN vira o jeito padrão de entrar (abre sozinho no 4º número) e há o link "Entrar com a senha". O PIN só funciona neste computador (uma chave guardada aqui é somada ao PIN, então um backup copiado não abre só com ele), fica bloqueado depois de 8 erros seguidos até você entrar com a senha, e pode ser trocado ou removido a qualquer momento. A senha e o código de recuperação continuam valendo.
+
+### Melhorias
+- Contas do mês: a ordenação agora é feita pelas setas no cabeçalho da tabela (Conta, Categoria, Valor, Pago e Fatura/vencimento). Clique para ordenar de forma crescente, clique de novo para inverter e uma terceira vez para voltar à sua ordem. A caixa de seleção de ordem foi removida; o filtro (todas, em aberto, pagas…) e a busca continuam.
+
+## 1.6.3 — 05/11/2026
+
+### Novidades
+- Contas do mês: filtros e ordenação logo acima da lista. Mostrar todas, só em aberto, só pagas, com valor ou sem valor; ordenar por nome (A→Z ou Z→A), tipo de conta (categoria), em aberto ou pagas primeiro, maior ou menor valor e vencimento; e buscar pelo nome. A barra mostra quantas contas aparecem e a soma delas. A escolha fica lembrada, e a sua ordem manual não é alterada (o arrastar só funciona na "Minha ordem" sem filtros).
+
+## 1.6.2 — 03/11/2026
+
+### Novidades
+- Excluir conta: agora a exclusão vale do mês aberto em diante e não mexe nos meses anteriores (valores, histórico e gráficos ficam como estão). Serve para contas pontuais, de um mês só. A conta deixa de aparecer nos meses seguintes. Para apagar de todos os meses, use o botão "Apagar também os meses anteriores" no mesmo aviso.
+
+## 1.6.1 — 03/11/2026
+
+### Melhorias
+- Pagamento CLT: "Importar holerite ou férias" aceita vários arquivos de uma vez. Selecione o holerite do salário e o do adiantamento juntos: o app abre um por vez para conferir, mapeia proventos, descontos, FGTS e bases de cálculo, e a projeção e a evolução mês a mês passam a usar esses dados.
+
+## 1.6.0 — 03/11/2026
+
+### Novidades
+- Botão "Detalhes" em cada conta do mês: mostra o resumo (valor, vencimento, referência, situação, consumo e custo por unidade, código de pagamento) e permite ajustar valor, vencimento, consumo, mês de referência e se está paga, sem precisar importar de novo. Também tem atalhos para importar a fatura e para o boleto/Pix.
+
+### Melhorias
+- Projeção de entradas: sem nenhum holerite mensal, o salário bruto passa a ser calculado pelo adiantamento importado (adiantamento ÷ percentual, 40% por padrão), e os descontos são aplicados pela tabela CLT. Antes, sem holerite, o mês ficava sem projeção.
+- Leitura de fatura de cartão (calibrada com a fatura do Mercado Pago): o "Pagamento da fatura" anterior deixa de entrar como gasto; os itens somam exatamente o total.
+
+### Correções
+- Fatura do Mercado Pago: o pagamento da fatura anterior era lançado como item marcado e distorcia a soma.
+
+## 1.5.0 — 03/11/2026
+
+### Novidades
+- Cada conta fica no mês em que é lançada e paga: o que você importa ou lança em Novembro vale para Novembro, mesmo sendo uma conta de outubro. O mês de referência impresso na conta (ex.: Outubro/2026) é guardado como base de consumo, então a tela Consumo continua mostrando Outubro. A importação não muda mais o mês pelo vencimento.
+- Férias: ao marcar "Mês de férias" em Novembro, o desconto do salário é projetado para Dezembro (adiantamento do dia 20 de novembro e saldo de dezembro). Novembro mantém o salário de outubro integral e o recibo de férias.
+
+### Melhorias
+- O Calendário passa a datar o salário assim: o saldo no dia 5 do próprio mês e o adiantamento no dia 20 do mês anterior ao lançamento.
+- A opção "contas vencem no mês seguinte" agora vem desmarcada por padrão (conta paga no mês em que foi lançada); pode ser ativada no Calendário.
+- Os nomes dos meses voltam a ser os do mês em que a conta foi lançada, sem deslocamento.
+
+## 1.4.1 — 03/11/2026
+
+### Correções
+- Importar conta: o mês de destino agora é o mês de referência impresso na conta, não o do vencimento. A conta de energia de Outubro/2026, com vencimento em 06/12, é lançada em Novembro junto com as outras contas de outubro, e o vencimento continua guardado. Na 1.4.0 ela ia para Dezembro.
+
+## 1.4.0 — 03/11/2026
+
+### Novidades
+- Mês de pagamento: a tela do mês agora tem o nome do mês em que o dinheiro entra e sai. "Novembro" mostra as contas de outubro (que vencem em novembro) e o salário de outubro (adiantamento do dia 20 e saldo do dia 5). Abas, título e comparações usam esse nome.
+- Mês de referência separado do vencimento: ao importar uma conta, o app lê o "Outubro/2026" impresso nela. O consumo (kWh, m³) fica em Outubro, mesmo que a conta só vença em dezembro, e a tela Consumo e os gráficos usam o mês de referência.
+
+### Melhorias
+- Importar conta: o diálogo mostra em qual mês a conta vai aparecer, conforme o vencimento (ex.: energia com vencimento em 06/12 aparece em Dezembro), e o mês pode ser trocado ali.
+- A fatura da Claro continua lida por rótulos, com os totais por categoria (Internet, TV & Streaming, Celular).
+
+### Correções
+- A importação de contas com vencimentos em meses diferentes dava a impressão de apagar a anterior; agora o mês de destino fica explícito antes de importar.
+
+## 1.3.6 — 03/11/2026
+
+### Melhorias
+- Importar conta: o diálogo agora explica em qual mês a conta será lançada, conforme o vencimento (ex.: "Vencimento 06/12/2026 → entra em Novembro, paga em Dezembro"), e lembra que o mês pode ser trocado para juntar com as outras contas. O aviso final diz em que mês a conta foi lançada.
+
+### Correções
+- Ao importar contas com vencimentos em meses diferentes (ex.: energia vencendo em dezembro e água em novembro), cada uma ia para o seu mês e o app pulava para a última, dando a impressão de que a anterior tinha sido apagada. Nada era apagado; agora o mês de destino fica explícito antes de importar.
+
+## 1.3.5 — 03/11/2026
+
+### Melhorias
+- Importar fatura da Claro (e outras contas de telecom/serviços): o app agora lê o valor total pelo rótulo "Total a pagar"/"Valor total", o vencimento, os totais por categoria (Internet, TV & Streaming, Celular) e o código do boleto. A conta é reconhecida como telefone/internet, não mais como cartão.
+- Leitura por OCR (PDF escaneado ou foto): os totais por categoria também são reconhecidos quando a linha vem com texto extra colado, comum em OCR.
+
+### Correções
+- A fatura da Claro era lida como cartão de crédito e trazia itens errados (datas, linhas de valor 0,00, texto de ofertas). Agora linhas zeradas e o período "01/10/26 A 31/10/26" não viram itens.
+
+## 1.3.4 — 03/11/2026
+
+### Novidades
+- Painel fixo "Pago × Em aberto" no fim da lista de contas do mês: ao marcar cada conta como paga, mostra na hora o valor já pago, o que falta pagar, quantas contas faltam e uma barra de progresso.
+- Senha com no mínimo 4 caracteres, podendo ser só números (antes eram 6). Vale para criar a senha, trocá-la e redefini-la pelo código de recuperação.
+
+### Melhorias
+- Mês de férias na projeção do salário: o salário de cada mês usa a projeção própria dele. Em um mês de férias, o adiantamento do dia 20 e o saldo do dia 5 do mês seguinte já saem reduzidos; o dia 5 do mês de férias traz o saldo integral do mês anterior. O Calendário e a tabela de Pagamento CLT respeitam o mês de férias, e o recibo de férias aparece no Calendário na data em que foi pago (até 2 dias antes do início).
+- O Calendário mostra também os adiantamentos e saldos já importados em qualquer mês.
+- Importar conta: antes de substituir uma fatura já importada de outro valor na mesma conta e mês, o app pergunta, para não sobrescrever nada sem você ver.
+
+### Correções
+- Importar uma conta nova em PDF podia apagar os dados de outra (ex.: importar a conta de água sobrescrevia a de energia). Acontecia quando a calibração guardada de uma conta era aplicada a um PDF de outro tipo; agora o modelo de energia não vale para água, gás, telefone ou cartão.
+
+## 1.3.3 — 03/11/2026
+
+### Novidades
+- Opções > "Restaurar o aplicativo do zero": volta o app ao estado de recém-instalado (sem contas, entradas, senha e preferências; você cria uma nova senha). Pede para digitar RESTAURAR, salva um backup antes e não apaga nada de vez: o cofre atual fica guardado na pasta "antes-do-zero", dentro da pasta de backups.
+
+### Melhorias
+- Lógica "o que é lançado em um mês é pago ou recebido no mês seguinte" aplicada nas telas: no Início, "Contas a pagar em Novembro" lista as contas lançadas em Outubro (que vencem em novembro), igual ao Calendário. Na tela do mês, os títulos mostram "lançadas em Outubro, pagas em Novembro" e "adiantamento em Outubro, saldo do salário em Novembro".
+- O mês anterior continua com a previsão do salário até o holerite ser importado: em Outubro aparece o saldo previsto que cai em 05/11 (o adiantamento do dia 20 já importado não é repetido). Antes, Outubro ficava "no vermelho" por falta dessa previsão.
+
+## 1.3.2 — 02/11/2026
+
+### Melhorias
+- Leitura de contas e faturas: o valor total agora é lido do rótulo "Valor total" / "Total a pagar" / "Valor a pagar" (ao lado ou logo abaixo), em vez de somar ou escolher entre valores soltos. Faturas de telefone/internet com várias páginas (ex.: Claro) deixam de ser tratadas como fatura de cartão.
+- OCR só quando precisa: em PDFs digitais (com texto de verdade), páginas de capa, propaganda ou imagem não passam mais por OCR no modo automático. Isso deixa a leitura mais rápida e sem lixo. PDFs escaneados continuam usando OCR.
+- Calendário: o saldo do salário já recebido aparece no dia certo (ex.: saldo de outubro em 05/11), junto com o adiantamento do dia 20.
+- Férias: o recibo de férias conta no mês em que as férias começam, mesmo pago antes (recibo do fim de outubro entra em novembro). Na importação o mês já vem sugerido assim.
+- Todas as contas do mês ganharam o botão "+ Boleto/Pix" para guardar a linha digitável ou o Pix copia e cola e exibir o código de barras / QR Code, sem precisar de PDF.
+
+## 1.3.1 — 02/11/2026
+
+### Melhorias
+- Férias recebidas antes do mês de gozo: o recibo de férias importado em um mês (ex.: pago no fim de outubro) passa a valer para o mês em que as férias começam (novembro). Esse mês já vem marcado como "Mês de férias" (10 dias trabalhados por padrão, dá para mudar ou desmarcar), com o salário proporcional e sem projetar as férias de novo.
+- PDF protegido por senha: o pop-up com "Salvar esta senha" reaproveita a senha na fatura do mês seguinte do mesmo emissor (ex.: Itaú), e as senhas salvas podem ser esquecidas em Segurança.
+
+### Correções
+- Contas com vencimento antigo no próprio mês (ex.: conta de outubro com vencimento em outubro) agora aparecem no Calendário no mês seguinte, de acordo com a regra de vencimento no mês seguinte.
+
+## 1.3.0 — 02/11/2026
+
+### Novidades
+- Vencimento no mês seguinte: as contas de um mês vencem e são pagas no mês seguinte (as de fevereiro vencem em março). Vale para o Calendário, os avisos de vencimento e a importação de contas (uma conta que vence em março entra em fevereiro). Dá para voltar ao vencimento no próprio mês no Calendário.
+
+### Melhorias
+- App mais simples: removidos o acesso pelo celular, a bandeja do sistema (o app não fica mais rodando em segundo plano nem inicia com o Windows), o Windows Hello e o modo discreto. O início automático das versões anteriores é desfeito sozinho.
+- "Windows Hello e bloqueio" virou "Bloqueio por inatividade".
+
+## 1.2.1 — 02/11/2026
+
+### Melhorias
+- Código de barras e Pix: a tela também abre pelo botão "Código de barras / Pix" na configuração da conta (o chip do tipo da conta), para colar a linha digitável ou o Pix copia e cola à mão.
+
+### Correções
+- "Sair e salvar backup" deixava a janela parada em "Salvando o backup…" depois de uma atualização pelo app. O backup já era salvo na hora; agora a janela também fecha sozinha.
+
+## 1.2.0 — 01/11/2026
+
+### Novidades
+- Contas parceladas: ao informar as parcelas (ex.: 48), o valor é lançado sozinho em todos os meses até a última parcela, inclusive nos anos seguintes.
+- Contas recorrentes: o valor é lançado sozinho nos meses seguintes, sem prazo. Se mudar, é só digitar o novo valor no mês: ele passa a valer dali em diante.
+- Código de barras e Pix: ao importar a conta (PDF ou foto), o app guarda a linha digitável do boleto e o Pix copia e cola. O botão "Código de barras" (ou "Pix") na conta mostra o código para escanear pelo app do banco, com opção de copiar. Também dá para colar o código à mão.
+- Entradas previstas: do mês atual em diante, cada mês já mostra o adiantamento e o salário previstos pelo último holerite; ao importar o holerite ou o adiantamento, a previsão daquela parte some.
+- Projeção do mês: caixinhas para mês de férias (dias trabalhados, com férias + 1/3 e venda de 10 dias) e 13º salário (1ª parcela, 2ª parcela ou parcela única), com o salário bruto do holerite ou informado por você.
+
+### Melhorias
+- IA local e Telegram removidos (as configurações que existirem são apagadas do banco).
+
+### Correções
+- As configurações do Simulador CLT e o registro do fechamento do mês não ficavam gravados ao reabrir o app.
+
+## 1.1.0 — 30/10/2026
+
+### Novidades
+- Windows Hello: desbloqueie com a digital, o rosto ou o PIN do Windows (Opções › Windows Hello e bloqueio). A senha continua valendo e a chave fica no chip de segurança (TPM) do computador.
+- Bloqueio por inatividade: o app volta para a tela de senha depois de 1 a 60 minutos sem uso (padrão: 15 minutos).
+- Modo discreto: o botão do olho, ao lado de Buscar, esconde os valores da tela (atalho Ctrl+Shift+H). Os relatórios em PDF continuam com os valores.
+- Conferência dos backups: cada backup é aberto e conferido logo depois de salvo, ao desbloquear e a cada 6 horas. Se um não abrir, o Início avisa.
+- Busca geral (Ctrl+K): encontra contas, itens das faturas e entradas em todos os meses e anos, por nome ou valor.
+- Desfazer (Ctrl+Z): volta a última alteração do ano aberto (até 30 alterações).
+- Fechamento do mês: roteiro de conferência (faturas, contas pagas, entradas, orçamento) que termina com o PDF de resumo do mês.
+- Simulador CLT: mês com 0 a 30 dias trabalhados e o restante de férias (com 1/3 e venda de 10 dias), e o 13º salário na 1ª e na 2ª parcela, com as tabelas de INSS e IRRF de 2026 e os descontos do seu holerite.
+- IA local no Meu Consultor Pessoal (opcional): perguntas em linguagem natural respondidas por uma IA que roda no computador (Ollama, gratuito). A IA consulta o app para obter os números; nada sai do computador.
+- Telegram (opcional): consultas e relatórios pelo celular de qualquer lugar (/resumo, /contas, /saude, /orcamento, /parcelas, /relatorio ou pergunta livre), com pareamento por código, PIN e mensagens apagadas automaticamente.
+- Tema preto (OLED).
+
+### Melhorias
+- Celular e bandeja: "Testar a conexão" mostra o tipo da rede, a situação do firewall do Windows e as tentativas de conexão do celular. "Liberar no firewall" cria, com permissão de administrador, uma regra só para a porta do celular e só para a rede local, e pode marcar a rede de casa como privada.
+- Instalador confere os requisitos (Windows 10 1809 ou mais novo, 64 bits, Microsoft Edge ou Google Chrome).
+- Backups: a lista mostra se cada backup abre normalmente.
+
+### Correções
+- Celular: o acesso não funcionava quando a rede do Windows estava como pública ou o firewall não tinha liberação para o app; agora o app mostra o problema e corrige.
+
+## 1.0.2 — 29/10/2026
+
+### Correções
+- Celular: depois de atualizar o app, aparecia "a porta 47614 está ocupada" mesmo com o acesso funcionando. A versão anterior agora libera a porta antes de a nova abrir, o app tenta de novo por alguns segundos e o aviso some quando o acesso liga.
+
+## 1.0.1 — 29/10/2026
+
+### Correções
+- Celular: a página não abria no Chrome do Android (erro ERR_TOO_MANY_RETRIES). A conexão agora é cifrada pelo próprio app, sem certificado: abre direto no Chrome e no Safari, sem o aviso de "conexão não particular".
+- Atualização: o antivírus do Windows bloqueava o programa baixado. O programa deixou de ser ofuscado e, se o antivírus barrar uma atualização, o app avisa onde conferir.
+
+### Melhorias
+- Código de conexão do celular com 16 letras e números; pelo QR Code a conexão continua automática e a chave não passa pela rede.
+
+## 1.0.0 — 29/10/2026
+
+### Novidades
+- Contas do mês com categorias, pagamento, tipo (recorrente, parcelada ou avulsa), dia de vencimento e perfil; copiar do mês anterior, importar planilha do Excel e exportar CSV.
+- Importação de faturas de cartão, contas de consumo, holerites e férias por PDF ou foto (OCR), com calibração da leitura por emissor.
+- Parcelamentos aprendidos das faturas e lançados em todos os meses até quitar, sem duplicar ao importar a fatura seguinte.
+- Entradas e Rendimentos: Pagamento CLT (holerites, descontos, projeção do salário com adiantamento e saldo), Avulsos e FGTS.
+- Calendário de pagamentos, com avisos no Windows antes do vencimento, mesmo com o app fechado.
+- Metas e reserva de emergência, com progresso e ritmo necessário por mês.
+- Orçamento por categoria, com alerta em 80% e ao estourar.
+- Simulador "e se…": antecipar parcelamento, nova compra parcelada, mudança de salário e despesas mensais ou únicas.
+- Imposto de Renda: resumo do ano-calendário com exportação em PDF.
+- Patrimônio: investimentos, bens e dívidas, com evolução do patrimônio líquido.
+- Gastos do cartão com categorias automáticas que aprendem com as correções.
+- Assinaturas: custo mensal e anual e aviso de mudança de preço.
+- Perfis para separar as contas de cada pessoa ou casa, com o consolidado.
+- Uso pelo celular na rede Wi-Fi de casa, sem internet: QR Code que já conecta o aparelho, no Chrome (Android) ou no Safari (iPhone), com atalho na tela de início.
+- Opção de manter o app em execução na bandeja do sistema ao fechar a janela, e de iniciar com o Windows na bandeja: o celular funciona com o computador ligado e pede a senha do app para desbloquear.
+- Início com alertas, nota de saúde financeira e resumo do mês; Evolução anual, Consumo, Gráficos e relatórios em PDF.
+- Meu Consultor Pessoal: respostas e dicas calculadas com os seus dados, sem enviar nada para a internet.
+- Backups: os 4 últimos para restaurar, restauração de um arquivo de qualquer pasta e troca da pasta dos backups pelo app.
+- Aviso de atualização com as notas da versão e a escolha de atualizar agora ou depois.
+- Quem usa o Finanças Pessoais 2.x ou 3.0 recebe esta versão pelo "Verificar atualização" (ou pelo instalador), mantendo senha, dados e backups; programa, atalhos e registro passam a se chamar Gerenciador Financeiro.
+
+### Segurança
+- Banco de dados e backups cifrados com AES-256-GCM, abertos só com a senha ou com o código de recuperação.
+- Backup automático a cada fechamento.
+- Atualização automática com verificação de assinatura digital.
+- Programa publicado com a interface cifrada dentro do executável.
