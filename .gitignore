@@ -1,0 +1,17 @@
+# código só cifrado (codigo/fonte.tar.gz.gpg); nada em texto aberto entra aqui
+*.go
+web/
+scripts/
+instalador/
+ferramentas/
+dist/
+*.exe
+*.db
+*.fpc
+*.pdf
+*.xlsx
+*.syso
+web.pacote
+web_chave_gerada.go
+web-min/
+node_modules/
