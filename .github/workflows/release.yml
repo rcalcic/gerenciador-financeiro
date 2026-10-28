@@ -1,0 +1,198 @@
+# Publica uma Release quando a versão do código (cifrado em codigo/fonte.tar.gz.gpg) ainda não tiver uma.
+#   1. compilar (Ubuntu): decifra o código com a chave derivada do segredo do repositório, roda os testes, compila
+#      protegido (interface minificada e cifrada), testa a interface publicada e assina
+#      o SHA256SUMS.txt (Ed25519);
+#   2. windows: roda o programa publicado de verdade no Windows (banco cifrado, PDF, avisos,
+#      celular, backups) e a atualização de uma instalação antiga pelo instalador;
+#   3. publicar: cria a Release com o instalador, o programa, os hashes e a assinatura, e as notas
+#      do CHANGELOG.md. Os apps instalados oferecem a atualização ao abrir.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    outputs:
+      versao: ${{ steps.v.outputs.versao }}
+      publicar: ${{ steps.v.outputs.publicar }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Decifrar o código-fonte
+        env:
+          SEGREDO: ${{ secrets.ASSINATURA_ATUALIZACAO }}
+        run: |
+          if [ -z "$SEGREDO" ]; then echo "::error::segredo ASSINATURA_ATUALIZACAO não configurado"; exit 1; fi
+          CHAVE=$({ printf '%s\n' "$SEGREDO"; printf 'gf-codigo-v1'; } | sha256sum | cut -c1-64)
+          printf '%s' "$CHAVE" | gpg --batch --quiet --pinentry-mode loopback --passphrase-fd 0 -d codigo/fonte.tar.gz.gpg | tar xz
+          echo "código decifrado ($(find . -name '*.go' -not -path './.git/*' | wc -l) arquivos Go)"
+
+      - name: Versão
+        id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(grep -oP 'versaoApp\s*=\s*"\K[0-9.]+' main.go)
+          I=$(grep -oP 'versao\s*=\s*"\K[0-9.]+' instalador/main.go)
+          if [ "$V" != "$I" ]; then echo "::error::versaoApp ($V) e instalador ($I) diferentes"; exit 1; fi
+          grep -q "^## $V" CHANGELOG.md || { echo "::error::CHANGELOG.md sem a seção $V"; exit 1; }
+          echo "versao=$V" >> "$GITHUB_OUTPUT"
+          # .github/republicar com a versão: apaga a Release dessa versão para publicar de novo (uso pontual)
+          if [ -f .github/republicar ] && grep -qx "$V" .github/republicar; then
+            gh release delete "v$V" --repo "$GITHUB_REPOSITORY" --cleanup-tag -y || true
+          fi
+          if gh release view "v$V" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release v$V já existe; nada a fazer."
+            echo "publicar=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "publicar=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-go@v5
+        if: steps.v.outputs.publicar == '1'
+        with:
+          go-version: 'stable'
+          check-latest: true
+          cache: false
+
+      - uses: actions/setup-node@v4
+        if: steps.v.outputs.publicar == '1'
+        with:
+          node-version: '22'
+
+      - name: Ferramentas (OCR empacotado, esbuild, govulncheck)
+        if: steps.v.outputs.publicar == '1'
+        run: |
+          sh scripts/vendor-ocr.sh >/dev/null
+          npm install --no-save --no-audit --no-fund esbuild >/dev/null
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Vulnerabilidades (govulncheck)
+        if: steps.v.outputs.publicar == '1'
+        run: |
+          go version
+          GOOS=windows govulncheck ./...
+          GOOS=windows govulncheck ./instalador
+
+      - name: Testes
+        if: steps.v.outputs.publicar == '1'
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libsqlite3-dev
+          go test ./...
+
+      - name: Teste da interface publicada (minificada e cifrada)
+        if: steps.v.outputs.publicar == '1'
+        run: |
+          node scripts/minificar.cjs
+          go run ./ferramentas/empacotar web-min .
+          go build -tags protegido -o /tmp/gf-publicado .
+          rm -f web.pacote web_chave_gerada.go && rm -rf web-min
+          pip install -q playwright
+          python -m playwright install --with-deps chromium >/dev/null
+          python scripts/teste-fumaca.py /tmp/gf-publicado
+
+      - name: Compilar (comum, só para o teste de compatibilidade no Windows)
+        if: steps.v.outputs.publicar == '1'
+        run: |
+          python3 gerar_recursos.py rsrc_windows_amd64.syso
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-H=windowsgui -s -w" -o teste-win/GerenciadorFinanceiro-comum.exe .
+          cp scripts/teste-windows.ps1 teste-win/
+
+      - name: Compilar (protegido)
+        if: steps.v.outputs.publicar == '1'
+        run: |
+          PROTEGER=1 sh build.sh
+          # FinancasPessoais.exe: o mesmo programa, com o nome que as versões antigas (Finanças Pessoais 2.x/3.x) baixam
+          cp dist/GerenciadorFinanceiro.exe dist/FinancasPessoais.exe
+          cd dist && sha256sum GerenciadorFinanceiro.exe FinancasPessoais.exe Instalar-GerenciadorFinanceiro.exe > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      - name: Assinar (Ed25519)
+        if: steps.v.outputs.publicar == '1'
+        env:
+          CHAVE: ${{ secrets.ASSINATURA_ATUALIZACAO }}
+        run: |
+          if [ -z "$CHAVE" ]; then echo "::error::segredo ASSINATURA_ATUALIZACAO não configurado"; exit 1; fi
+          umask 077
+          printf '%s\n' "$CHAVE" > "$RUNNER_TEMP/chave.pem"
+          openssl pkeyutl -sign -inkey "$RUNNER_TEMP/chave.pem" -rawin -in dist/SHA256SUMS.txt -out dist/SHA256SUMS.sig
+          rm -f "$RUNNER_TEMP/chave.pem"
+          echo "assinado: $(wc -c < dist/SHA256SUMS.sig) bytes"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.v.outputs.publicar == '1'
+        with:
+          name: dist
+          path: |
+            dist/GerenciadorFinanceiro.exe
+            dist/FinancasPessoais.exe
+            dist/Instalar-GerenciadorFinanceiro.exe
+            dist/SHA256SUMS.txt
+            dist/SHA256SUMS.sig
+          retention-days: 3
+
+      - uses: actions/upload-artifact@v4
+        if: steps.v.outputs.publicar == '1'
+        with:
+          name: teste-windows
+          path: teste-win/
+          retention-days: 1
+
+  windows:
+    needs: compilar
+    if: needs.compilar.outputs.publicar == '1'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: teste-windows
+          path: teste
+      - name: Testar o programa e o instalador publicados
+        shell: pwsh
+        run: ./teste/teste-windows.ps1 -Exe (Resolve-Path dist/GerenciadorFinanceiro.exe) -Instalador (Resolve-Path dist/Instalar-GerenciadorFinanceiro.exe) -Simples (Resolve-Path teste/GerenciadorFinanceiro-comum.exe)
+
+  publicar:
+    needs: [compilar, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ needs.compilar.outputs.versao }}
+        run: |
+          awk -v v="## $V" 'index($0,v)==1{p=1;next} /^## /{if(p)exit} p' CHANGELOG.md > dist/notas.md
+          cat dist/notas.md
+          gh release create "v$V" dist/GerenciadorFinanceiro.exe dist/Instalar-GerenciadorFinanceiro.exe dist/SHA256SUMS.txt dist/SHA256SUMS.sig \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Gerenciador Financeiro $V" --notes-file dist/notas.md --latest=false
+          # Ponte para quem ainda usa o Finanças Pessoais 2.x/3.x: essas versões só olham a Release
+          # "latest" e só aceitam uma versão maior que 3.0.0 com o arquivo FinancasPessoais.exe.
+          # O Gerenciador Financeiro ignora esta Release (a tag não é só números).
+          PONTE=v3.0.1-gerenciador-financeiro
+          { echo "Atualização para quem ainda usa o **Finanças Pessoais** (versões 2.x e 3.0): instala o **Gerenciador Financeiro $V** (novo nome do app), mantendo a senha, os dados e os backups. Os atalhos passam a se chamar Gerenciador Financeiro."
+            echo; echo "Quem já usa o Gerenciador Financeiro recebe as atualizações normalmente."; echo
+            cat dist/notas.md; } > dist/ponte.md
+          gh release delete "$PONTE" --repo "$GITHUB_REPOSITORY" --cleanup-tag -y || true
+          gh release create "$PONTE" dist/FinancasPessoais.exe dist/Instalar-GerenciadorFinanceiro.exe dist/SHA256SUMS.txt dist/SHA256SUMS.sig \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Finanças Pessoais → Gerenciador Financeiro $V" --notes-file dist/ponte.md --latest
